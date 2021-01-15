@@ -1,4 +1,4 @@
-// 1/14  p497
+// chap 20 1/15  p516 make this done !! skipping some sections at the end of chapter
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { ProductComponent } from "./component";
@@ -24,6 +24,10 @@ import { PaDiscountPipe } from "./discount.pipe";
 import { PaDiscountAmountDirective } from "./discountAmount.directive";
 import { SimpleDataSource } from "./datasource.model";
 import { Model } from "./repository.model";
+import { LogService, LOG_SERVICE, SpecialLogService, LogLevel, LOG_LEVEL } from "./log.service";
+
+let logger = new LogService();
+logger.minimumLevel = LogLevel.DEBUG;
 
 registerLocaleData(localeFr);
 
@@ -35,7 +39,24 @@ registerLocaleData(localeFr);
     ProductFormComponent, PaAddTaxPipe, PaCategoryFilterPipe,
     PaDiscountDisplayComponent, PaDiscountEditorComponent,
     PaDiscountPipe, PaDiscountAmountDirective],
-  providers: [DiscountService, SimpleDataSource, Model],
+  providers: [DiscountService, SimpleDataSource, Model,
+              //{provide: LOG_SERVICE, useClass: LogService, multi: true},
+              //{provide: LOG_SERVICE, useClass: SpecialLogService, multi: true} 
+            //{provide: LogService, useValue: logger}
+            { provide : LOG_LEVEL, useValue: LogLevel.ERROR;
+            },
+            { provide: "debugLevel", useExisting: LOG_LEVEL},
+            {
+              provide: LogService, 
+              deps: ["debugLevel"],
+              useFactory: ()=>{
+                let logger = new LogService();
+                logger.minimumLevel=LogLevel.DEBUG;
+                return logger;
+              }
+            }
+            
+            ],
   bootstrap: [ProductComponent]
 })
 export class AppModule { }
